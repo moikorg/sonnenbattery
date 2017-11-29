@@ -23,7 +23,8 @@ def main():
 #    sqlSelect = "SELECT * FROM battery"
     sqlInsert = """
         INSERT INTO battery
-        (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, timestamp, ts, usoc, uAC, uBat)
+        (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, timestamp, ts, usoc,
+        uAC, uBat)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 #    for row in c.execute(sqlSelect):
@@ -34,11 +35,7 @@ def main():
         if sonnenData == None:
             break
 
-        print(sonnenData)
-
         ts = str2Epoch(sonnenData['Timestamp'])
-        print (ts)
-
         myrow = (
             sonnenData['Consumption_W'],
             sonnenData['Fac'],
