@@ -9,13 +9,20 @@ def main():
     conn = sqlite3.connect('sonnen.sql')
     c = conn.cursor()
 
-    sql = """
-      CREATE TABLE battery
-     (consumption INTEGER, frequency INTEGER, gridConsumption INTEGER, isSystemInstalled INTEGER, pacTotal INTEGER,
-     production INTEGER, rsoc INTEGER, ts TEXT , usoc INTEGER, uAC INTEGER, uBat INTEGER)
-     """
     # create table
+    sql = """
+     CREATE TABLE battery
+     (consumption INTEGER, frequency INTEGER, gridConsumption INTEGER, isSystemInstalled INTEGER, pacTotal INTEGER,
+     production INTEGER, rsoc INTEGER, timestamp TEXT, ts INTEGER PRIMARY KEY DESC, usoc INTEGER, uAC INTEGER, uBat INTEGER)
+     """
     c.execute(sql)
+
+    # create additional index
+    sql = """
+        CREATE INDEX index_timestamp ON battery (timestamp ASC)
+    """
+    c.execute(sql)
+
     conn.commit()
     conn.close()
 
