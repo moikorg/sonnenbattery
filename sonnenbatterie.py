@@ -1,7 +1,16 @@
 import requests
 import sqlite3
 import time
+import sys
 
+def getFirstArgument():
+    if len(sys.argv) > 1:
+        try:
+            argument = float(sys.argv[1])
+        except ValueError:
+            return 10   # default 10 sec
+        return argument
+    return 10   # default 10 secs
 
 def getSonnenData():
     try:
@@ -17,6 +26,7 @@ def str2Epoch(strDate):
     return int(time.mktime(time.strptime(strDate, pattern)))
 
 def main():
+    period = getFirstArgument()
     conn = sqlite3.connect('sonnen.sql')
     c = conn.cursor()
 
@@ -53,7 +63,7 @@ def main():
         c.execute(sqlInsert, myrow)
 
         conn.commit()
-        time.sleep(5)
+        time.sleep(period-0.1)
 
     conn.close()
 
