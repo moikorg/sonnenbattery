@@ -2,15 +2,25 @@ import requests
 import sqlite3
 import time
 
+
 def getSonnenData():
-    r = requests.get('http://SB-41059:8080/api/v1/status')
-    return r.json()
+    try:
+        r = requests.get('http://SB-41059:8080/api/v1/status')
+        return r.json()
+    except requests.exceptions.ConnectionError as err:
+        print ("Error, connection to sonnen battery could be established")
+        print (err)
+        return None
+
+def str2Epoch(strDate):
+    pattern = '%Y-%m-%d %H:%M:%S'
+    return int(time.mktime(time.strptime(strDate, pattern)))
 
 def main():
     conn = sqlite3.connect('sonnen.sql')
     c = conn.cursor()
 
-    sqlSelect = "SELECT * FROM battery"
+#    sqlSelect = "SELECT * FROM battery"
     sqlInsert = """
         INSERT INTO battery
         (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, ts, usoc, uAC, uBat)
@@ -19,9 +29,13 @@ def main():
 #    for row in c.execute(sqlSelect):
 #        print(row)
 
-    while (1):
+    while True:
         sonnenData = getSonnenData()
+        if sonnenData == None:
+            break
+
         print(sonnenData)
+        print (str2Epoch(sonnenData['Timestamp']))
 
         myrow = (
             sonnenData['Consumption_W'],
