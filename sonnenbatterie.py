@@ -2,15 +2,18 @@ import requests
 import sqlite3
 import time
 import sys
+import argparse
 
-def getFirstArgument():
-    if len(sys.argv) > 1:
-        try:
-            argument = float(sys.argv[1])
-        except ValueError:
-            return 10   # default 10 sec
-        return argument
-    return 10   # default 10 secs
+def parseTheArgs():
+    parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
+    parser.add_argument('period', metavar='t', type=int,
+                        help='an integer for the time in seconds to wait until two API requests')
+    parser.add_argument('-d', dest='verbose', action='store_true',
+                        help='print debugging information')
+
+    args = parser.parse_args()
+    return args
+
 
 def getSonnenData():
     try:
@@ -26,19 +29,17 @@ def str2Epoch(strDate):
     return int(time.mktime(time.strptime(strDate, pattern)))
 
 def main():
-    period = getFirstArgument()
+    args = parseTheArgs()
+    period = args.period
+
     conn = sqlite3.connect('sonnen.sql')
     c = conn.cursor()
 
-#    sqlSelect = "SELECT * FROM battery"
     sqlInsert = """
         INSERT INTO battery
         (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, timestamp, ts, usoc,
         uAC, uBat)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-
-#    for row in c.execute(sqlSelect):
-#        print(row)
 
     while True:
         sonnenData = getSonnenData()
@@ -46,7 +47,8 @@ def main():
             time.sleep(period - 0.1)
             continue
 
-        print(sonnenData)
+        if args.verbose == True:
+            print(sonnenData)
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
