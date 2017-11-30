@@ -45,6 +45,7 @@ def main():
         if sonnenData == None:
             break
 
+        print(sonnenData)
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
@@ -63,7 +64,7 @@ def main():
         c.execute(sqlInsert, myrow)
 
         conn.commit()
-        time.sleep(period-0.1)
+        time.sleep(period-0.05)
 
     conn.close()
 
