@@ -43,7 +43,8 @@ def main():
     while True:
         sonnenData = getSonnenData()
         if sonnenData == None:
-            break
+            time.sleep(period - 0.1)
+            continue
 
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
