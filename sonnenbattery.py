@@ -32,7 +32,7 @@ def main():
     args = parseTheArgs()
     period = args.period
 
-    conn = sqlite3.connect('sonnen.sql')
+    conn = sqlite3.connect('/home/mike/git/sonnenbattery/sonnen.sql')
     c = conn.cursor()
 
     sqlInsert = """
