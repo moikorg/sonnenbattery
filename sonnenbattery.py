@@ -44,6 +44,8 @@ def main():
     while True:
         sonnenData = getSonnenData()
         if sonnenData == None:
+            if args.verbose == True:
+                print("Could not connect to sonnen battery. Retry in %s seconds",period)
             time.sleep(period - 0.1)
             continue
 
