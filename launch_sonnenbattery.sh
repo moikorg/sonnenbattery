@@ -7,6 +7,6 @@ then
     exit 0
 else
     echo "sonnen battery crawler not running, restart the stuff"
-    python3 sonnenbattery.py 10
+    python3 sonnenbattery.py -d 10
 fi
 
