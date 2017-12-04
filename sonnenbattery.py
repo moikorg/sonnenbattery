@@ -32,14 +32,15 @@ def main():
     args = parseTheArgs()
     period = args.period
 
-    conn = sqlite3.connect('/home/mike/git/sonnenbattery/sonnen.sql')
+    conn = sqlite3.connect('../moikorg_site/db.sqlite3')
+#    conn = sqlite3.connect('/home/mike/git/sonnenbattery/sonnen.sql')
     c = conn.cursor()
 
     sqlInsert = """
-        INSERT INTO battery
-        (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, timestamp, ts, usoc,
+        INSERT INTO sonnen_sonnenbattery
+        (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, timestamp, usoc,
         uAC, uBat)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
     while True:
         sonnenData = getSonnenData()
@@ -61,7 +62,7 @@ def main():
             sonnenData['Production_W'],
             sonnenData['RSOC'],
             sonnenData['Timestamp'],
-            ts,
+#            ts,
             sonnenData['USOC'],
             sonnenData['Uac'],
             sonnenData['Ubat']
