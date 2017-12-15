@@ -6,10 +6,12 @@ import argparse
 
 def parseTheArgs():
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
-    parser.add_argument('period', metavar='t', type=int,
+    parser.add_argument('period', metavar='periode', type=int,
                         help='an integer for the time in seconds to wait until two API requests')
     parser.add_argument('-d', dest='verbose', action='store_true',
                         help='print debugging information')
+    parser.add_argument('db', metavar='database', type=str,
+                        help='the complete path/name to the DB')
 
     args = parser.parse_args()
     return args
@@ -32,7 +34,7 @@ def main():
     args = parseTheArgs()
     period = args.period
 
-    conn = sqlite3.connect('../moikorg_site/db.sqlite3')
+    conn = sqlite3.connect(args.db)
 #    conn = sqlite3.connect('/home/mike/git/sonnenbattery/sonnen.sql')
     c = conn.cursor()
 
