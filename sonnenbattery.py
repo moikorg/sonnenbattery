@@ -1,8 +1,8 @@
 import requests
 import sqlite3
 import time
-import sys
 import argparse
+from time import gmtime, strftime
 
 def parseTheArgs():
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
@@ -12,6 +12,8 @@ def parseTheArgs():
                         help='print debugging information')
     parser.add_argument('db', metavar='database', type=str,
                         help='the complete path/name to the DB')
+    parser.add_argument('-m', dest='mock', action='store_true',
+                        help='use mocked data instead requesting from the API')
 
     args = parser.parse_args()
     return args
@@ -45,12 +47,26 @@ def main():
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
     while True:
-        sonnenData = getSonnenData()
-        if sonnenData == None:
-            if args.verbose == True:
-                print("Could not connect to sonnen battery. Retry in %s seconds",period)
-            time.sleep(period - 0.1)
-            continue
+        if args.mock == True:
+            sonnenData={}
+            sonnenData['Consumption_W']=1234
+            sonnenData['Fac']=50
+            sonnenData['GridFeedIn_W']=500
+            sonnenData['IsSystemInstalled']=1
+            sonnenData['Pac_total_W']=0
+            sonnenData['Production_W']=500
+            sonnenData['RSOC']=5
+            sonnenData['Timestamp']=strftime("%Y-%m-%d %H:%M:%S", gmtime())
+            sonnenData['USOC']=0
+            sonnenData['Uac']=230
+            sonnenData['Ubat']=48
+        else:
+            sonnenData = getSonnenData()
+            if sonnenData == None:
+                if args.verbose == True:
+                    print("Could not connect to sonnen battery. Retry in %s seconds",period)
+                time.sleep(period - 0.1)
+                continue
 
         if args.verbose == True:
             print(sonnenData)
