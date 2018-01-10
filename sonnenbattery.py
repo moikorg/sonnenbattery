@@ -3,6 +3,7 @@ import sqlite3
 import time
 import argparse
 from time import gmtime, strftime
+import syslog
 
 def parseTheArgs():
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
@@ -35,6 +36,8 @@ def str2Epoch(strDate):
 def main():
     args = parseTheArgs()
     period = args.period
+
+#    syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_MAIL)
 
     conn = sqlite3.connect(args.db)
 #    conn = sqlite3.connect('/home/mike/git/sonnenbattery/sonnen.sql')
@@ -70,6 +73,7 @@ def main():
 
         if args.verbose == True:
             print(sonnenData)
+        syslog.syslog(syslog.LOG_ERR | syslog.LOG_USER, str(sonnenData))
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
