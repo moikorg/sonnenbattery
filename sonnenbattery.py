@@ -78,9 +78,9 @@ def main():
         myrow = (
             sonnenData['Consumption_W'],
             sonnenData['Fac'],
-            -sonnenData['GridFeedIn_W'],
+            sonnenData['GridFeedIn_W'],
             sonnenData['IsSystemInstalled'],
-            -sonnenData['Pac_total_W'],
+            sonnenData['Pac_total_W'],
             sonnenData['Production_W'],
             sonnenData['RSOC'],
             sonnenData['Timestamp'],
