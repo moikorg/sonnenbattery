@@ -76,6 +76,7 @@ def main():
         if args.verbose == True:
             print(sonnenData)
         syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, str(sonnenData))
+        syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, json.dumps(sonnenData))
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
