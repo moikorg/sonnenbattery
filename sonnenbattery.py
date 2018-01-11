@@ -3,6 +3,7 @@ import sqlite3
 import time
 import argparse
 from time import gmtime, strftime
+import json
 
 def parseTheArgs():
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
