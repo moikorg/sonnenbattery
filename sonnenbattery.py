@@ -39,10 +39,7 @@ def main():
     args = parseTheArgs()
     period = args.period
 
-#    syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_MAIL)
-
     conn = sqlite3.connect(args.db)
-#    conn = sqlite3.connect('/home/mike/git/sonnenbattery/sonnen.sql')
     c = conn.cursor()
 
     sqlInsert = """
