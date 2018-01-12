@@ -102,3 +102,6 @@ ENV/
 
 # the sqlite DB
 sonnen.sql
+
+# IDE stuff
+.idea/
