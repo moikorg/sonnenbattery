@@ -5,7 +5,8 @@ import argparse
 from time import gmtime, strftime
 import json
 import syslog
-
+import logging
+from pythonjsonlogger import jsonlogger
 
 def parseTheArgs():
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
@@ -39,6 +40,16 @@ def main():
     args = parseTheArgs()
     period = args.period
 
+    handler = logging.StreamHandler()
+
+    format_str = '%(message)%(levelname)%(name)%(asctime)'
+    formatter = jsonlogger.JsonFormatter(format_str)
+    handler.setFormatter(formatter)
+    logger = logging.getLogger('sonnenbattery')
+    logger.addHandler(handler)
+    logger.propagate = False
+
+
     conn = sqlite3.connect(args.db)
     c = conn.cursor()
 
@@ -51,12 +62,12 @@ def main():
     while True:
         if args.mock == True:
             sonnenData={}
-            sonnenData['Consumption_W']=1234
+            sonnenData['Consumption_W']=6182
             sonnenData['Fac']=50
-            sonnenData['GridFeedIn_W']=500
+            sonnenData['GridFeedIn_W']=-780
             sonnenData['IsSystemInstalled']=1
-            sonnenData['Pac_total_W']=0
-            sonnenData['Production_W']=500
+            sonnenData['Pac_total_W']=2501
+            sonnenData['Production_W']=2900
             sonnenData['RSOC']=5
             sonnenData['Timestamp']=strftime("%Y-%m-%d %H:%M:%S", gmtime())
             sonnenData['USOC']=0
@@ -73,7 +84,7 @@ def main():
         if args.verbose == True:
             print(sonnenData)
         syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, str(sonnenData))
-        syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, json.dumps(sonnenData))
+        logger.warning(str(sonnenData))
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
