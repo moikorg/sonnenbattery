@@ -18,6 +18,8 @@ def parseTheArgs():
                         help='the complete path/name to the DB')
     parser.add_argument('-m', dest='mock', action='store_true',
                         help='use mocked data instead requesting from the API')
+    parser.add_argument('-l', help='path and filename of logfile, default=/var/log/sonnen.json',
+                        default='/var/log/sonnen.json')
 
     args = parser.parse_args()
     return args
@@ -41,6 +43,7 @@ def main():
     period = args.period
 
     handler = logging.StreamHandler()
+    handler = logging.FileHandler(args.l)
 
     format_str = '%(message)%(levelname)%(name)%(asctime)'
     formatter = jsonlogger.JsonFormatter(format_str)
