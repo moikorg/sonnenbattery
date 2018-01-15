@@ -55,9 +55,9 @@ def main():
 
     sqlInsert = """
         INSERT INTO sonnen_sonnenbattery
-        (consumption, frequency, gridConsumption, isSystemInstalled, pacTotal, production, rsoc, timestamp, usoc,
+        (consumption, frequency, gridConsumption, pacTotal, production, rsoc, timestamp, usoc,
         uAC, uBat)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
     while True:
         if args.mock == True:
@@ -65,7 +65,6 @@ def main():
             sonnenData['Consumption_W']=6182
             sonnenData['Fac']=50
             sonnenData['GridFeedIn_W']=-780
-            sonnenData['IsSystemInstalled']=1
             sonnenData['Pac_total_W']=2501
             sonnenData['Production_W']=2900
             sonnenData['RSOC']=5
@@ -90,7 +89,6 @@ def main():
             sonnenData['Consumption_W'],
             sonnenData['Fac'],
             sonnenData['GridFeedIn_W'],
-            sonnenData['IsSystemInstalled'],
             sonnenData['Pac_total_W'],
             sonnenData['Production_W'],
             sonnenData['RSOC'],
