@@ -100,8 +100,5 @@ ENV/
 # mypy
 .mypy_cache/
 
-# the sqlite DB
-sonnen.sql
-
 # IDE stuff
 .idea/
