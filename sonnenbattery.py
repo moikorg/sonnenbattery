@@ -42,7 +42,7 @@ def main():
     args = parseTheArgs()
     period = args.period
 
-    handler = logging.StreamHandler()
+    #    handler = logging.StreamHandler()
     handler = logging.FileHandler(args.l)
 
     format_str = '%(message)%(levelname)%(name)%(asctime)'
@@ -85,8 +85,8 @@ def main():
 
         if args.verbose == True:
             print(sonnenData)
-        syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, str(sonnenData))
-        logger.warning(str(sonnenData))
+#        syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, str(sonnenData))
+        logger.warning('classic message', extra=sonnenData)
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
