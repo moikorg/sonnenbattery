@@ -80,13 +80,14 @@ def main():
             if sonnenData == None:
                 if args.verbose == True:
                     print("Could not connect to sonnen battery. Retry in %s seconds",period)
+                error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
+                logger.error(error_str)
                 time.sleep(period - 0.1)
                 continue
 
         if args.verbose == True:
             print(sonnenData)
-#        syslog.syslog(syslog.LOG_INFO | syslog.LOG_USER, str(sonnenData))
-        logger.warning('classic message', extra=sonnenData)
+        logger.warning('success', extra=sonnenData)
         ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
