@@ -88,7 +88,6 @@ def main():
         if args.verbose == True:
             print(sonnenData)
         logger.info('success', extra=sonnenData)
-#        ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
             sonnenData['Fac'],
@@ -97,7 +96,6 @@ def main():
             sonnenData['Production_W'],
             sonnenData['RSOC'],
             sonnenData['Timestamp'],
-#            ts,
             sonnenData['USOC'],
             sonnenData['Uac'],
             sonnenData['Ubat']
