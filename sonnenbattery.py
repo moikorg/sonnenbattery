@@ -3,10 +3,14 @@ import sqlite3
 import time
 import argparse
 from time import gmtime, strftime
-import json
-import syslog
+#import json
+#import syslog
 import logging
 from pythonjsonlogger import jsonlogger
+import mysql.connector
+
+
+
 
 def parseTheArgs():
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
@@ -53,14 +57,19 @@ def main():
     logger.propagate = False
 
 
-    conn = sqlite3.connect(args.db)
+    conn = mysql.connector.connect(host='xxx',
+                           user = 'xxx',
+                           password = 'xxx',
+                           db = 'django',
+                           charset = 'utf8')
+
     c = conn.cursor()
 
     sqlInsert = """
         INSERT INTO sonnen_sonnenbattery
-        (consumption, frequency, gridConsumption, pacTotal, production, rsoc, timestamp, usoc,
-        uAC, uBat)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+        (consumption, frequency, gridConsumption, pacTotal, production, rsoc, usoc,
+        uAC, uBat, timestamp)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
     while True:
         if args.mock == True:
@@ -96,11 +105,10 @@ def main():
             sonnenData['Pac_total_W'],
             sonnenData['Production_W'],
             sonnenData['RSOC'],
-            sonnenData['Timestamp'],
-#            ts,
             sonnenData['USOC'],
             sonnenData['Uac'],
-            sonnenData['Ubat']
+            sonnenData['Ubat'],
+            sonnenData['Timestamp'],
         )
         c.execute(sqlInsert, myrow)
 
