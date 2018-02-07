@@ -128,8 +128,17 @@ def main():
                          "|rsoc=" + str(sonnenData['RSOC']) + \
                          "|usoc=" + str(sonnenData['USOC']) + \
                          "|ubat=" + str(sonnenData['Ubat'])
-            print(sonnenData)
-            #print(output_str)
+            output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
+                         "\"consumption\":\""+str(sonnenData['Consumption_W'])+"\","+\
+                         "\"fac\":\""+str(sonnenData['Fac'])+"\","+\
+                         "\"gridfeedin\":"+str(sonnenData['GridFeedIn_W'])+","+ \
+                         "\"pactotal\":\"" + str(sonnenData['Pac_total_W'])+"\"," + \
+                         "\"production\":\"" + str(sonnenData['Production_W'])+"\"," + \
+                         "\"rsoc\":\"" + str(sonnenData['RSOC'])+"\"," + \
+                         "\"usoc\":\"" + str(sonnenData['USOC'])+"\"," + \
+                         "\"ubat\":\"" + str(sonnenData['Ubat'])+"\"}"
+            #print(sonnenData)
+            print(output_str)
 #        logger.info('success', extra=sonnenData)
         myrow = (
             sonnenData['Consumption_W'],
