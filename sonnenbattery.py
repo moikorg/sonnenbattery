@@ -40,7 +40,8 @@ def connectDB(configfile):
 
 def parseTheArgs() -> object:
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
-    parser.add_argument('-p', type=int, help='an integer for the time in seconds to wait until two API requests',
+    parser.add_argument('-p', type=int,
+                        help='an integer for the time in seconds to wait until two API requests (default: 30sec)',
                         default=30)
     parser.add_argument('-d', dest='verbose', action='store_true',
                         help='print debugging information')
