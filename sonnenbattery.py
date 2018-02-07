@@ -22,9 +22,9 @@ def configSectionMap(config, section):
     return dict1
 
 
-def connectDB():
+def connectDB(configfile):
     config = configparser.ConfigParser()
-    config.read('config.rc')
+    config.read(configfile)
 
     conn = mysql.connector.connect(host=configSectionMap(config, "DB")['host'],
                                    user=configSectionMap(config, "Credentials")['username'],
@@ -52,6 +52,8 @@ def parseTheArgs() -> object:
                         default='/var/log/sonnen.json')
     parser.add_argument('-1', dest='oneshot', action='store_true',
                         help='one shot execution',)
+    parser.add_argument('-f', help='path and filename of the config file, default is ./config.rc',
+                        default='./config.rc')
 
     args = parser.parse_args()
     return args
@@ -85,7 +87,7 @@ def main():
     logger.addHandler(handler)
     logger.propagate = False
 
-    conn = connectDB()
+    conn = connectDB(args.f)
     c = conn.cursor()
 
     sqlInsert = """
