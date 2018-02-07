@@ -40,8 +40,8 @@ def connectDB(configfile):
 
 def parseTheArgs() -> object:
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
-    parser.add_argument('period', metavar='periode', type=int,
-                        help='an integer for the time in seconds to wait until two API requests')
+    parser.add_argument('-p', type=int, help='an integer for the time in seconds to wait until two API requests',
+                        default=30)
     parser.add_argument('-d', dest='verbose', action='store_true',
                         help='print debugging information')
 #    parser.add_argument('db', metavar='database', type=str,
@@ -75,7 +75,7 @@ def str2Epoch(strDate):
 
 def main():
     args = parseTheArgs()
-    period = args.period
+    period = args.p
 
     # handler = logging.FileHandler(args.l)
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
