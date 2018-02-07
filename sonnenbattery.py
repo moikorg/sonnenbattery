@@ -44,8 +44,8 @@ def parseTheArgs() -> object:
                         help='an integer for the time in seconds to wait until two API requests')
     parser.add_argument('-d', dest='verbose', action='store_true',
                         help='print debugging information')
-    parser.add_argument('db', metavar='database', type=str,
-                        help='the complete path/name to the DB')
+#    parser.add_argument('db', metavar='database', type=str,
+#                        help='the complete path/name to the DB')
     parser.add_argument('-m', dest='mock', action='store_true',
                         help='use mocked data instead requesting from the API')
     parser.add_argument('-l', help='path and filename of logfile, default=/var/log/sonnen.json',
