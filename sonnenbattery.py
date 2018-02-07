@@ -113,14 +113,14 @@ def main():
             if sonnenData == None:
                 if args.verbose:
                     print("Could not connect to sonnen battery. Retry in %s seconds",period)
-                error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
-                logger.error(error_str)
+ #               error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
+ #               logger.error(error_str)
                 time.sleep(period - 0.1)
                 continue
 
         if args.verbose:
             print(sonnenData)
-        logger.info('success', extra=sonnenData)
+#        logger.info('success', extra=sonnenData)
         myrow = (
             sonnenData['Consumption_W'],
             sonnenData['Fac'],
