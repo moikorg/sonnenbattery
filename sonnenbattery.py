@@ -1,18 +1,44 @@
 import requests
-import sqlite3
 import time
 import argparse
 from time import gmtime, strftime
-#import json
-#import syslog
 import logging
 from pythonjsonlogger import jsonlogger
 import mysql.connector
+import configparser
+
+
+def configSectionMap(config, section):
+    dict1 = {}
+    options = config.options(section)
+    for option in options:
+        try:
+            dict1[option] = config.get(section, option)
+            if dict1[option] == -1:
+                print("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+
+
+def connectDB():
+    config = configparser.ConfigParser()
+    config.read('config.rc')
+
+    conn = mysql.connector.connect(host=configSectionMap(config, "DB")['host'],
+                                   user=configSectionMap(config, "Credentials")['username'],
+                                   password=configSectionMap(config, "Credentials")['password'],
+                                   db=configSectionMap(config, "DB")['db'],
+                                   port=configSectionMap(config, "DB")['port'],
+                                   charset = 'utf8')
+    return conn
 
 
 
 
-def parseTheArgs():
+
+def parseTheArgs() -> object:
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
     parser.add_argument('period', metavar='periode', type=int,
                         help='an integer for the time in seconds to wait until two API requests')
@@ -36,13 +62,14 @@ def getSonnenData():
         r = requests.get('http://SB-41059:8080/api/v1/status')
         return r.json()
     except requests.exceptions.ConnectionError as err:
-        print ("Error, connection to sonnen battery could be established")
-        print (err)
+        print("Error, connection to sonnen battery could be established")
+        print(err)
         return None
 
 def str2Epoch(strDate):
     pattern = '%Y-%m-%d %H:%M:%S'
     return int(time.mktime(time.strptime(strDate, pattern)))
+
 
 def main():
     args = parseTheArgs()
@@ -58,13 +85,7 @@ def main():
     logger.addHandler(handler)
     logger.propagate = False
 
-
-    conn = mysql.connector.connect(host='docker',
-                           user = 'x',
-                           password = 'x',
-                           db = 'django',
-                           charset = 'utf8')
-
+    conn = connectDB()
     c = conn.cursor()
 
     sqlInsert = """
@@ -74,29 +95,29 @@ def main():
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
     while True:
-        if args.mock == True:
+        if args.mock:
             sonnenData={}
-            sonnenData['Consumption_W']=6182
-            sonnenData['Fac']=50
-            sonnenData['GridFeedIn_W']=-780
-            sonnenData['Pac_total_W']=2501
-            sonnenData['Production_W']=2900
-            sonnenData['RSOC']=5
-            sonnenData['Timestamp']=strftime("%Y-%m-%d %H:%M:%S", gmtime())
-            sonnenData['USOC']=0
-            sonnenData['Uac']=230
-            sonnenData['Ubat']=48
+            sonnenData['Consumption_W'] = 6182
+            sonnenData['Fac'] = 50
+            sonnenData['GridFeedIn_W'] = -780
+            sonnenData['Pac_total_W'] = 2501
+            sonnenData['Production_W'] = 2900
+            sonnenData['RSOC'] = 5
+            sonnenData['Timestamp'] = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+            sonnenData['USOC'] = 0
+            sonnenData['Uac'] = 230
+            sonnenData['Ubat'] = 48
         else:
             sonnenData = getSonnenData()
             if sonnenData == None:
-                if args.verbose == True:
+                if args.verbose:
                     print("Could not connect to sonnen battery. Retry in %s seconds",period)
                 error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
                 logger.error(error_str)
                 time.sleep(period - 0.1)
                 continue
 
-        if args.verbose == True:
+        if args.verbose:
             print(sonnenData)
         logger.info('success', extra=sonnenData)
         myrow = (
@@ -120,6 +141,7 @@ def main():
         time.sleep(period-0.05)
 
     conn.close()
+
 
 # this is the standard boilerplate that calls the main() function
 if __name__ == '__main__':
