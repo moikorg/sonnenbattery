@@ -24,6 +24,8 @@ def parseTheArgs():
                         help='use mocked data instead requesting from the API')
     parser.add_argument('-l', help='path and filename of logfile, default=/var/log/sonnen.json',
                         default='/var/log/sonnen.json')
+    parser.add_argument('-1', dest='oneshot', action='store_true',
+                        help='one shot execution',)
 
     args = parser.parse_args()
     return args
@@ -57,9 +59,9 @@ def main():
     logger.propagate = False
 
 
-    conn = mysql.connector.connect(host='xxx',
-                           user = 'xxx',
-                           password = 'xxx',
+    conn = mysql.connector.connect(host='docker',
+                           user = 'x',
+                           password = 'x',
                            db = 'django',
                            charset = 'utf8')
 
@@ -97,7 +99,6 @@ def main():
         if args.verbose == True:
             print(sonnenData)
         logger.info('success', extra=sonnenData)
-#        ts = str2Epoch(sonnenData['Timestamp'])
         myrow = (
             sonnenData['Consumption_W'],
             sonnenData['Fac'],
@@ -113,6 +114,9 @@ def main():
         c.execute(sqlInsert, myrow)
 
         conn.commit()
+        if args.oneshot:
+            break
+
         time.sleep(period-0.05)
 
     conn.close()
