@@ -128,8 +128,8 @@ def main():
                          "|rsoc=" + str(sonnenData['RSOC']) + \
                          "|usoc=" + str(sonnenData['USOC']) + \
                          "|ubat=" + str(sonnenData['Ubat'])
-                #print(sonnenData)
-            print(output_str)
+            print(sonnenData)
+            #print(output_str)
 #        logger.info('success', extra=sonnenData)
         myrow = (
             sonnenData['Consumption_W'],
