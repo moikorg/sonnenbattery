@@ -2,8 +2,8 @@ import requests
 import time
 import argparse
 from time import gmtime, strftime
-import logging
-from pythonjsonlogger import jsonlogger
+# import logging
+# from pythonjsonlogger import jsonlogger
 import mysql.connector
 import configparser
 
@@ -77,15 +77,13 @@ def main():
     args = parseTheArgs()
     period = args.period
 
-    #    handler = logging.StreamHandler()
-    handler = logging.FileHandler(args.l)
-
-    format_str = '%(message)%(levelname)%(name)%(asctime)'
-    formatter = jsonlogger.JsonFormatter(format_str)
-    handler.setFormatter(formatter)
-    logger = logging.getLogger('sonnenbattery')
-    logger.addHandler(handler)
-    logger.propagate = False
+    # handler = logging.FileHandler(args.l)
+    # format_str = '%(message)%(levelname)%(name)%(asctime)'
+    # formatter = jsonlogger.JsonFormatter(format_str)
+    # handler.setFormatter(formatter)
+    # logger = logging.getLogger('sonnenbattery')
+    # logger.addHandler(handler)
+    # logger.propagate = False
 
     conn = connectDB(args.f)
     c = conn.cursor()
