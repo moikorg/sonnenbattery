@@ -130,21 +130,25 @@ def main():
                          "\"usoc\":" + str(sonnenData['USOC'])+"," + \
                          "\"ubat\":" + str(sonnenData['Ubat'])+"}"
             print(output_str)
-        myrow = (
-            sonnenData['Consumption_W'],
-            sonnenData['Fac'],
-            sonnenData['GridFeedIn_W'],
-            sonnenData['Pac_total_W'],
-            sonnenData['Production_W'],
-            sonnenData['RSOC'],
-            sonnenData['USOC'],
-            sonnenData['Uac'],
-            sonnenData['Ubat'],
-            sonnenData['Timestamp'],
-        )
-        c.execute(sqlInsert, myrow)
+        try:
+            myrow = (
+                sonnenData['Consumption_W'],
+                sonnenData['Fac'],
+                sonnenData['GridFeedIn_W'],
+                sonnenData['Pac_total_W'],
+                sonnenData['Production_W'],
+                sonnenData['RSOC'],
+                sonnenData['USOC'],
+                sonnenData['Uac'],
+                sonnenData['Ubat'],
+                sonnenData['Timestamp'],
+            )
+        except KeyError:
+            print("some keys are missing")
+        else:
+            c.execute(sqlInsert, myrow)
+            conn.commit()
 
-        conn.commit()
         if args.oneshot:
             break
 
