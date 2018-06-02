@@ -91,15 +91,14 @@ def main():
 
     sqlInsert = """
         INSERT INTO sonnen_sonnenbattery
-        (consumption, frequency, gridConsumption, pacTotal, production, rsoc, usoc,
+        (consumption, gridConsumption, pacTotal, production, rsoc, usoc,
         uAC, uBat, timestamp)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
     while True:
         if args.mock:
             sonnenData={}
             sonnenData['Consumption_W'] = 6182
-            sonnenData['Fac'] = 50
             sonnenData['GridFeedIn_W'] = -780
             sonnenData['Pac_total_W'] = 2501
             sonnenData['Production_W'] = 2900
@@ -122,7 +121,6 @@ def main():
 
             output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
                          "\"consumption\":"+str(sonnenData['Consumption_W'])+","+\
-                         "\"fac\":"+str(sonnenData['Fac'])+","+\
                          "\"gridfeedin\":"+str(sonnenData['GridFeedIn_W'])+","+ \
                          "\"pactotal\":" + str(sonnenData['Pac_total_W'])+"," + \
                          "\"production\":" + str(sonnenData['Production_W'])+"," + \
@@ -133,7 +131,6 @@ def main():
         try:
             myrow = (
                 sonnenData['Consumption_W'],
-                sonnenData['Fac'],
                 sonnenData['GridFeedIn_W'],
                 sonnenData['Pac_total_W'],
                 sonnenData['Production_W'],

@@ -8,7 +8,7 @@ PERIOD=10
 if ps ax | grep sonnenbattery.py | grep -v -q grep
 then
     # the app is running, nothing to do, exit
-    echo "App already running"
+    #echo "App already running"
     exit 0
 else
     echo "sonnen battery crawler not running, restart the stuff"
