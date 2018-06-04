@@ -80,7 +80,7 @@ def main():
     args = parseTheArgs()
     period = args.p
 
-    logging.basicConfig(filename='/var/log/sonnen.log', level=logging.DEBUG)
+    logging.basicConfig(filename='/var/log/sonnen.log')
     logging.basicConfig(format='%(asctime)s %(message)s')
 
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
