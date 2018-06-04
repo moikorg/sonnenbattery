@@ -80,9 +80,7 @@ def main():
     args = parseTheArgs()
     period = args.p
 
-    logging.basicConfig(filename='/var/log/sonnen.log')
-    logging.basicConfig(format='%(asctime)s %(message)s')
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(filename='/var/log/sonnen.log',format='%(asctime)s %(message)s',level=logging.INFO)
 
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
     # formatter = jsonlogger.JsonFormatter(format_str)
