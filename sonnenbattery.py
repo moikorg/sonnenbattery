@@ -3,7 +3,6 @@ import time
 import argparse
 from time import gmtime, strftime
 import logging
-# from pythonjsonlogger import jsonlogger
 import mysql.connector
 import configparser
 
@@ -81,7 +80,8 @@ def main():
     args = parseTheArgs()
     period = args.p
 
-    # handler = logging.FileHandler(args.l)
+    logging.basicConfig(filename='/var/log/sonnen.log', level=logging.DEBUG)
+
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
     # formatter = jsonlogger.JsonFormatter(format_str)
     # handler.setFormatter(formatter)
