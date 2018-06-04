@@ -81,6 +81,7 @@ def main():
     period = args.p
 
     logging.basicConfig(filename='/var/log/sonnen.log', level=logging.DEBUG)
+    logging.basicConfig(format='%(asctime)s %(message)s')
 
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
     # formatter = jsonlogger.JsonFormatter(format_str)
