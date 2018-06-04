@@ -121,7 +121,6 @@ def main():
                 time.sleep(period - 0.1)
                 continue
 
-        if args.verbose:
 
             output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
                          "\"consumption\":"+str(sonnenData['Consumption_W'])+","+\
@@ -131,7 +130,8 @@ def main():
                          "\"rsoc\":" + str(sonnenData['RSOC'])+"," + \
                          "\"usoc\":" + str(sonnenData['USOC'])+"," + \
                          "\"ubat\":" + str(sonnenData['Ubat'])+"}"
-            print(output_str)
+            if args.verbose:
+                print(output_str)
             logging.info(output_str)
         try:
             myrow = (
