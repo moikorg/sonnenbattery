@@ -131,6 +131,7 @@ def main():
                          "\"usoc\":" + str(sonnenData['USOC'])+"," + \
                          "\"ubat\":" + str(sonnenData['Ubat'])+"}"
             print(output_str)
+            logging.info(output_str)
         try:
             myrow = (
                 sonnenData['Consumption_W'],
