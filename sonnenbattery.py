@@ -2,7 +2,7 @@ import requests
 import time
 import argparse
 from time import gmtime, strftime
-# import logging
+import logging
 # from pythonjsonlogger import jsonlogger
 import mysql.connector
 import configparser
@@ -16,8 +16,10 @@ def configSectionMap(config, section):
             dict1[option] = config.get(section, option)
             if dict1[option] == -1:
                 print("skip: %s" % option)
+                logging.warning("skip: %s" % option)
         except:
             print("exception on %s!" % option)
+            logging.warning("exception on %s!" % option)
             dict1[option] = None
     return dict1
 
@@ -49,8 +51,8 @@ def parseTheArgs() -> object:
 #                        help='the complete path/name to the DB')
     parser.add_argument('-m', dest='mock', action='store_true',
                         help='use mocked data instead requesting from the API')
-    parser.add_argument('-l', help='path and filename of logfile, default=/var/log/sonnen.json',
-                        default='/var/log/sonnen.json')
+#    parser.add_argument('-l', help='path and filename of logfile, default=/var/log/sonnen.json',
+#                        default='/var/log/sonnen.json')
     parser.add_argument('-1', dest='oneshot', action='store_true',
                         help='one shot execution',)
     parser.add_argument('-f', help='path and filename of the config file, default is ./config.rc',
@@ -65,6 +67,7 @@ def getSonnenData():
         r = requests.get('http://SB-41059:8080/api/v1/status')
         return r.json()
     except requests.exceptions.ConnectionError as err:
+        logging.error("Error, could not connect to Sonnen-Battery API. %s" % err)
         print("Error, connection to sonnen battery could be established")
         print(err)
         return None
@@ -113,8 +116,8 @@ def main():
             if sonnenData == None:
                 if args.verbose:
                     print("Could not connect to sonnen battery. Retry in %s seconds",period)
- #               error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
- #               logger.error(error_str)
+                error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
+                logging.error(error_str)
                 time.sleep(period - 0.1)
                 continue
 
