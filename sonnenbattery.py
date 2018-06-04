@@ -121,7 +121,8 @@ def main():
                 continue
 
 
-            output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
+            try:
+                output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
                          "\"consumption\":"+str(sonnenData['Consumption_W'])+","+\
                          "\"gridfeedin\":"+str(sonnenData['GridFeedIn_W'])+","+ \
                          "\"pactotal\":" + str(sonnenData['Pac_total_W'])+"," + \
@@ -129,9 +130,13 @@ def main():
                          "\"rsoc\":" + str(sonnenData['RSOC'])+"," + \
                          "\"usoc\":" + str(sonnenData['USOC'])+"," + \
                          "\"ubat\":" + str(sonnenData['Ubat'])+"}"
-            if args.verbose:
-                print(output_str)
-            logging.info(output_str)
+            except KeyError as err:
+                logging.warning("KeyError occured: %s" % err)
+            else:
+                if args.verbose:
+                    print(output_str)
+                logging.info(output_str)
+                
         try:
             myrow = (
                 sonnenData['Consumption_W'],
