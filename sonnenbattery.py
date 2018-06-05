@@ -135,7 +135,7 @@ def main():
             else:
                 if args.verbose:
                     print(output_str)
-                logging.info(output_str)
+                    logging.info(output_str)
 
         try:
             myrow = (
