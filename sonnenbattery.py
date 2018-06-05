@@ -113,9 +113,9 @@ def main():
         else:
             sonnenData = getSonnenData()
             if sonnenData == None:
-                if args.verbose:
-                    print("Could not connect to sonnen battery. Retry in %s seconds",period)
-                error_str = "Could not connect to sonnen battery. Retry in " + period + "seconds"
+                error_str: str = "Could not connect to sonnen battery. Retry in " + str(period) + "seconds"
+                if args.verbose is True:
+                    print(error_str)
                 logging.error(error_str)
                 time.sleep(period - 0.1)
                 continue
@@ -136,7 +136,7 @@ def main():
                 if args.verbose:
                     print(output_str)
                 logging.info(output_str)
-                
+
         try:
             myrow = (
                 sonnenData['Consumption_W'],
