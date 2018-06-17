@@ -70,6 +70,11 @@ def getSonnenData():
         print("Error, connection to sonnen battery could be established")
         print(err)
         return None
+    except requests.exceptions.Timeout as err:
+        logging.error("Request timed out. %s" % err)
+        print("Request to battery timed out")
+        print(err)
+
 
 def str2Epoch(strDate):
     pattern = '%Y-%m-%d %H:%M:%S'
