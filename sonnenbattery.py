@@ -63,7 +63,7 @@ def parseTheArgs() -> object:
 
 def getSonnenData():
     try:
-        r = requests.get('http://SB-41059:8080/api/v1/status')
+        r = requests.get('http://SB-41059:8080/api/v1/status', timeout=0.1)
         return r.json()
     except requests.exceptions.ConnectionError as err:
         logging.error("Error, could not connect to Sonnen-Battery API. %s" % err)
@@ -150,7 +150,8 @@ def main():
                 sonnenData['Timestamp'],
             )
         except KeyError:
-            print("some keys are missing")
+            print("some keys are missing, rollingback")
+            conn.rollback()
         else:
             c.execute(sqlInsert, myrow)
             conn.commit()
