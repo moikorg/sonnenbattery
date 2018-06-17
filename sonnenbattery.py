@@ -156,10 +156,14 @@ def main():
             )
         except KeyError:
             print("some keys are missing, rollingback")
-            conn.rollback()
+            #conn.rollback()
         else:
-            c.execute(sqlInsert, myrow)
-            conn.commit()
+            try:
+                c.execute(sqlInsert, myrow)
+            except mysql.connector.errors.DatabaseError:
+                print("connection to DB did not work")
+            else:
+                conn.commit()
 
         if args.oneshot:
             break
