@@ -158,11 +158,11 @@ def main():
             print("some keys are missing, rollingback")
             #conn.rollback()
         else:
-            sonnenData['Consumption_W'] = 10
             if sonnenData['Consumption_W'] > 0:
-                if abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
-                       sonnenData['Consumption_W']-sonnenData['GridFeedIn_W']) > 5:
-                    print ("error in read out, diff greater than 5")
+                diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
+                       sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
+                if diff > 5:
+                    print("error in read out, diff greater than 5. Diff was: " + str(diff))
                 else:
                     try:
                         c.execute(sqlInsert, myrow)
