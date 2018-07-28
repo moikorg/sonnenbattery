@@ -43,7 +43,7 @@ def parseTheArgs() -> object:
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
     parser.add_argument('-p', type=int,
                         help='an integer for the time in seconds to wait until two API requests (default: 30sec)',
-                        default=30)
+                        default=10)
     parser.add_argument('-d', dest='verbose', action='store_true',
                         help='print debugging information')
 #    parser.add_argument('db', metavar='database', type=str,
@@ -158,13 +158,20 @@ def main():
             print("some keys are missing, rollingback")
             #conn.rollback()
         else:
-            try:
-                c.execute(sqlInsert, myrow)
-            except mysql.connector.errors.DatabaseError:
-                print("connection to DB did not work")
+            sonnenData['Consumption_W'] = 10
+            if sonnenData['Consumption_W'] > 0:
+                if abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
+                       sonnenData['Consumption_W']-sonnenData['GridFeedIn_W']) > 5:
+                    print ("error in read out, diff greater than 5")
+                else:
+                    try:
+                        c.execute(sqlInsert, myrow)
+                    except mysql.connector.errors.DatabaseError:
+                        print("connection to DB did not work")
+                    else:
+                        conn.commit()
             else:
-                conn.commit()
-
+                print("got a 0 consumption, ignore this data set")
         if args.oneshot:
             break
 
