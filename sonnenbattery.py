@@ -63,7 +63,7 @@ def parseTheArgs() -> object:
 
 def getSonnenData():
     try:
-        r = requests.get('http://SB-41059:8080/api/v1/status', timeout=0.1)
+        r = requests.get('http://SB-41059:8080/api/v1/status', timeout=1.0)
         return r.json()
     except requests.exceptions.ConnectionError as err:
         logging.error("Error, could not connect to Sonnen-Battery API. %s" % err)
@@ -122,7 +122,7 @@ def main():
                 if args.verbose is True:
                     print(error_str)
                 logging.error(error_str)
-                time.sleep(period - 0.1)
+                time.sleep(period - 0.3)
                 continue
 
 
