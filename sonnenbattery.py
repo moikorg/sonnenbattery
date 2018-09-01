@@ -119,8 +119,8 @@ def main():
             sonnenData = getSonnenData()
             if sonnenData == None:
                 error_str = "Could not connect to sonnen battery. Retry in " + str(period) + "seconds"
-                if args.verbose is True:
-                    print(error_str)
+#                if args.verbose is True:
+                print(error_str)
                 logging.error(error_str)
                 time.sleep(period - 0.3)
                 continue
