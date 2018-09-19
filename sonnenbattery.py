@@ -161,8 +161,8 @@ def main():
             if sonnenData['Consumption_W'] > 0:
                 diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
                        sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
-                if diff > 5:
-                    print("error in read out, diff greater than 5. Diff was: " + str(diff))
+                if diff > 10:
+                    print("error in read out, diff greater than 10. Diff was: " + str(diff))
                 else:
                     try:
                         c.execute(sqlInsert, myrow)
