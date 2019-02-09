@@ -13,6 +13,6 @@ then
 else
     echo "sonnen battery crawler not running, restart the stuff"
     # python3 sonnenbattery.py 5
-    $PY3 $SCRIPT -d -p $PERIOD -f $CONFIG 2>&1 
+    $PY3 $SCRIPT  -p $PERIOD -f $CONFIG 2>&1 
 fi
 
