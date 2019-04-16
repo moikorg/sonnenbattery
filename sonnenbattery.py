@@ -36,9 +36,6 @@ def connectDB(configfile):
     return conn
 
 
-
-
-
 def parseTheArgs() -> object:
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
     parser.add_argument('-p', type=int,
@@ -161,8 +158,8 @@ def main():
             if sonnenData['Consumption_W'] > 0:
                 diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
                        sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
-                if diff > 10:
-                    print("error in read out, diff greater than 10. Diff was: " + str(diff))
+                if diff > 20:
+                    print("error in read out, diff greater than 20. Diff was: " + str(diff))
                 else:
                     try:
                         c.execute(sqlInsert, myrow)
