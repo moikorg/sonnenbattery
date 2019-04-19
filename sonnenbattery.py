@@ -78,6 +78,11 @@ def str2Epoch(strDate):
     pattern = '%Y-%m-%d %H:%M:%S'
     return int(time.mktime(time.strptime(strDate, pattern)))
 
+def on_connect(client, userdata, flags, rc):
+    if rc==0:
+        print("connected OK Returned code=",rc)
+    else:
+        print("Bad connection Returned code=",rc)
 
 def main():
     args = parseTheArgs()
@@ -133,6 +138,12 @@ def main():
                          "\"rsoc\":" + str(sonnenData['RSOC'])+"," + \
                          "\"usoc\":" + str(sonnenData['USOC'])+"," + \
                          "\"ubat\":" + str(sonnenData['Ubat'])+"}"
+                mqtt_json = "{\"ts\":\"" + sonnenData['Timestamp'] + "\"," + \
+                             "\"cons\":" + str(sonnenData['Consumption_W']) + "," + \
+                             "\"gridFIn\":" + str(sonnenData['GridFeedIn_W']) + "," + \
+                             "\"pactot\":" + str(sonnenData['Pac_total_W']) + "," + \
+                             "\"prod\":" + str(sonnenData['Production_W']) + "," + \
+                             "\"usoc\":" + str(sonnenData['USOC']) + "}"
             except KeyError as err:
                 logging.warning("KeyError occured: %s" % err)
             else:
@@ -170,11 +181,17 @@ def main():
                         conn.commit()
 
                     # write to MQTT
-                    broker_address = "mqtt.moik.org"
-                    # broker_address="iot.eclipse.org" #use external broker
+                    config = configparser.ConfigParser()
+                    config.read(args.f)
+
+                    broker_address = configSectionMap(config, "MQTT")['host']
                     client = mqtt.Client("sonnen_mqtt_writer")  # create new instance
+                    client.on_connect = on_connect  # bind call back function
+                    client.username_pw_set(username=configSectionMap(config, "MQTT")['username'],
+                                           password=configSectionMap(config, "MQTT")['password'])
+
                     client.connect(broker_address)  # connect to broker
-                    client.publish("sensor/photovoltaics/1", output_str)  # publish
+                    client.publish("sensor/pv/1", mqtt_json)  # publish
                     client.disconnect()
             else:
                 print("got a 0 consumption, ignore this data set")
