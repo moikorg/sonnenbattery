@@ -5,6 +5,7 @@ from time import gmtime, strftime
 import logging
 import mysql.connector
 import configparser
+import paho.mqtt.client as mqtt
 
 
 def configSectionMap(config, section):
@@ -82,7 +83,7 @@ def main():
     args = parseTheArgs()
     period = args.p
 
-    logging.basicConfig(filename='/var/log/sonnen.log',format='%(asctime)s %(message)s',level=logging.INFO)
+    logging.basicConfig(filename='/tmp/sonnen.log',format='%(asctime)s %(message)s',level=logging.INFO)
 
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
     # formatter = jsonlogger.JsonFormatter(format_str)
@@ -167,6 +168,14 @@ def main():
                         print("connection to DB did not work")
                     else:
                         conn.commit()
+
+                    # write to MQTT
+                    broker_address = "mqtt.moik.org"
+                    # broker_address="iot.eclipse.org" #use external broker
+                    client = mqtt.Client("sonnen_mqtt_writer")  # create new instance
+                    client.connect(broker_address)  # connect to broker
+                    client.publish("sensor/photovoltaics/1", output_str)  # publish
+                    client.disconnect()
             else:
                 print("got a 0 consumption, ignore this data set")
         if args.oneshot:
