@@ -54,6 +54,8 @@ def parseTheArgs() -> object:
                         help='one shot execution',)
     parser.add_argument('-f', help='path and filename of the config file, default is ./config.rc',
                         default='./config.rc')
+    parser.add_argument('-v', help='if this argument is set, then output is logged to /tmp/sonnen.log',
+                        action='store_true')
 
     args = parser.parse_args()
     return args
@@ -88,7 +90,9 @@ def main():
     args = parseTheArgs()
     period = args.p
 
-    logging.basicConfig(filename='/tmp/sonnen.log',format='%(asctime)s %(message)s',level=logging.INFO)
+    if args.v == True:
+        logging.basicConfig(filename='/tmp/sonnen.log',format='%(asctime)s %(message)s',level=logging.INFO)
+
 
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
     # formatter = jsonlogger.JsonFormatter(format_str)
