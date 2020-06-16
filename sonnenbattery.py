@@ -93,6 +93,7 @@ def main():
     if args.v == True:
         logging.basicConfig(filename='/tmp/sonnen.log',format='%(asctime)s %(message)s',level=logging.INFO)
 
+    mqttClient = connectMQTT(args)
 
     # format_str = '%(message)%(levelname)%(name)%(asctime)'
     # formatter = jsonlogger.JsonFormatter(format_str)
@@ -185,18 +186,18 @@ def main():
                         conn.commit()
 
                     # write to MQTT
-                    config = configparser.ConfigParser()
-                    config.read(args.f)
-
-                    broker_address = configSectionMap(config, "MQTT")['host']
-                    client = mqtt.Client("sonnen_mqtt_writer")  # create new instance
-                    client.on_connect = on_connect  # bind call back function
-                    client.username_pw_set(username=configSectionMap(config, "MQTT")['username'],
-                                           password=configSectionMap(config, "MQTT")['password'])
-
-                    client.connect(broker_address)  # connect to broker
-                    client.publish("sensor/pv/1", mqtt_json)  # publish
-                    client.disconnect()
+                    # config = configparser.ConfigParser()
+                    # config.read(args.f)
+                    #
+                    # broker_address = configSectionMap(config, "MQTT")['host']
+                    # client = mqtt.Client("sonnen_mqtt_writer")  # create new instance
+                    # client.on_connect = on_connect  # bind call back function
+                    # client.username_pw_set(username=configSectionMap(config, "MQTT")['username'],
+                    #                        password=configSectionMap(config, "MQTT")['password'])
+                    #
+                    # client.connect(broker_address)  # connect to broker
+                    mqttClient.publish("sensor/pv/1", mqtt_json)  # publish
+                    #client.disconnect()
             else:
                 print("got a 0 consumption, ignore this data set")
         if args.oneshot:
@@ -205,7 +206,45 @@ def main():
         time.sleep(period-0.05)
 
     conn.close()
+    mqttClient.disconnect()
 
+def on_disconnect(client, userdata, rc):
+    print("disconnecting reason  " + str(rc))
+
+
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+    # Subscribing in on_connect() means that if we lose the connection and
+    # reconnect then subscriptions will be renewed.
+   #client.subscribe("$SYS/#")
+
+
+def on_publish(client, userdata, result):
+    print("Data published")
+    pass
+
+
+def connectMQTT(args):
+    config = configparser.ConfigParser()
+    config.read(args.f)
+    broker = configSectionMap(config, "MQTT")['host']
+
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_publish = on_publish
+    client.on_disconnect = on_disconnect
+    client.username_pw_set(username=configSectionMap(config, "MQTT")['username'],
+                           password= configSectionMap(config, "MQTT")['password'])
+
+    try:
+        client.connect(broker, 1883, 60)
+    except:
+        print("ERROR: Can not connect to MQTT broker")
+        return 1
+
+    print("ready for publishing")
+    return client
 
 # this is the standard boilerplate that calls the main() function
 if __name__ == '__main__':
