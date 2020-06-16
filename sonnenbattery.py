@@ -95,13 +95,6 @@ def main():
 
     mqttClient = connectMQTT(args)
 
-    # format_str = '%(message)%(levelname)%(name)%(asctime)'
-    # formatter = jsonlogger.JsonFormatter(format_str)
-    # handler.setFormatter(formatter)
-    # logger = logging.getLogger('sonnenbattery')
-    # logger.addHandler(handler)
-    # logger.propagate = False
-
     conn = connectDB(args.f)
     c = conn.cursor()
 
@@ -185,19 +178,7 @@ def main():
                     else:
                         conn.commit()
 
-                    # write to MQTT
-                    # config = configparser.ConfigParser()
-                    # config.read(args.f)
-                    #
-                    # broker_address = configSectionMap(config, "MQTT")['host']
-                    # client = mqtt.Client("sonnen_mqtt_writer")  # create new instance
-                    # client.on_connect = on_connect  # bind call back function
-                    # client.username_pw_set(username=configSectionMap(config, "MQTT")['username'],
-                    #                        password=configSectionMap(config, "MQTT")['password'])
-                    #
-                    # client.connect(broker_address)  # connect to broker
                     mqttClient.publish("sensor/pv/1", mqtt_json)  # publish
-                    #client.disconnect()
             else:
                 print("got a 0 consumption, ignore this data set")
         if args.oneshot:
