@@ -63,7 +63,7 @@ def parseTheArgs() -> object:
 
 def getSonnenData():
     try:
-        r = requests.get('http://SB-41059:8080/api/v1/status', timeout=1.0)
+        r = requests.get('http://SB-41059:8080/api/v1/status', timeout=2.0)
         return r.json()
     except requests.exceptions.ConnectionError as err:
         logging.error("Error, could not connect to Sonnen-Battery API. %s" % err)
@@ -99,7 +99,7 @@ def main():
     c = conn.cursor()
 
     sqlInsert = """
-        INSERT INTO sonnen_sonnenbattery
+        INSERT INTO sonnenbattery
         (consumption, gridConsumption, pacTotal, production, rsoc, usoc,
         uAC, uBat, timestamp)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
