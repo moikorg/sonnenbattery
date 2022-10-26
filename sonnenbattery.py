@@ -2,11 +2,13 @@ import requests
 import time
 import argparse
 from time import gmtime, strftime
-import mysql.connector
 import configparser
 import paho.mqtt.client as mqtt
 import schedule
 import sys
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+
 
 
 # configuration file reading and setting the variables
@@ -24,8 +26,10 @@ def configSectionMap(config, section):
     return dict1
 
 
-# connection to the MariaDB
-def connectDB(configfile):
+# connection to the MariaDB and write the data
+def connectDB_andWrite(configfile, sonnenData):
+    import mysql.connector
+    
     config = configparser.ConfigParser()
     config.read(configfile)
 
@@ -36,18 +40,56 @@ def connectDB(configfile):
                                    port=configSectionMap(config, "DB")['port'],)
 #                                   charset = 'utf8mb4',
 #                                   collation = 'utf8mb3_general_ci')
-    return conn
+
+    c = conn.cursor()
+    SQL_INSERT = """
+        INSERT INTO sonnenbattery
+        (consumption, gridConsumption, pacTotal, production, rsoc, usoc,
+        uAC, uBat, timestamp)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+
+    try:
+        myrows = (
+            sonnenData['Consumption_W'],
+            sonnenData['GridFeedIn_W'],
+            sonnenData['Pac_total_W'],
+            sonnenData['Production_W'],
+            sonnenData['RSOC'],
+            sonnenData['USOC'],
+            sonnenData['Uac'],
+            sonnenData['Ubat'],
+            sonnenData['Timestamp'],
+        )
+    except KeyError:
+        print("some keys are missing, rollingback")
+        #conn.rollback()
+    else:
+        if sonnenData['Consumption_W'] > 0:
+            diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
+                    sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
+            if diff > 20:
+                print("error in read out, diff greater than 20. Diff was: " + str(diff))
+            else:
+                try:
+                    c.execute(SQL_INSERT, myrows)
+                except mysql.connector.errors.DatabaseError:
+                    print("connection to DB did not work")
+                else:
+                    conn.commit()
+                conn.close()
+
 
 
 # parsing the input arguments
 def parseTheArgs() -> object:
     parser = argparse.ArgumentParser(description='Request the Sonnen Battery API and write the data to the SQL DB')
     parser.add_argument('-v', dest='verbose', action='store_true',
-                        help='print debugging information')
+        help='print debugging information')
     parser.add_argument('-m', dest='mock', action='store_true',
-                        help='use mocked data instead requesting from the API')
+        help='use mocked data instead requesting from the API')
     parser.add_argument('-f', help='path and filename of the config file, default is ./config.rc',
-                        default='./config.rc')
+        default='./config.rc')
+    parser.add_argument('-d', help='write the data also to MariaDB/MySQL DB', action='store_true', dest='db_write')
 
     args = parser.parse_args()
     return args
@@ -59,7 +101,7 @@ def getSonnenData(config_file):
     config.read(config_file)
 
     try:
-        r = requests.get(configSectionMap(config, "Sonnen")['url'], timeout=2.0)
+        r = requests.get(configSectionMap(config, "Sonnen")['url'], timeout=1.0)
         return r.json()
     except requests.exceptions.ConnectionError as err:
         print("Error, connection to sonnen battery could be established")
@@ -85,14 +127,6 @@ def on_connect(client, userdata, flags, rc):
 
 
 def job(args):
-    conn = connectDB(args.f)
-    c = conn.cursor()
-
-    SQL_INSERT = """
-        INSERT INTO sonnenbattery
-        (consumption, gridConsumption, pacTotal, production, rsoc, usoc,
-        uAC, uBat, timestamp)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
     mqttClient = connectMQTT(args)
 
@@ -113,9 +147,12 @@ def job(args):
             error_str = f"Could not connect to sonnen battery. Retry later"
             print(error_str)
             return
+        if args.db_write:
+            conn = connectDB_andWrite(args.f, sonnenData)
 
         try:
-            output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
+            if args.verbose:
+                output_str = "{\"time\":\""+sonnenData['Timestamp']+"\","+\
                         "\"consumption\":"+str(sonnenData['Consumption_W'])+","+\
                         "\"gridfeedin\":"+str(sonnenData['GridFeedIn_W'])+","+ \
                         "\"pactotal\":" + str(sonnenData['Pac_total_W'])+"," + \
@@ -123,6 +160,7 @@ def job(args):
                         "\"rsoc\":" + str(sonnenData['RSOC'])+"," + \
                         "\"usoc\":" + str(sonnenData['USOC'])+"," + \
                         "\"ubat\":" + str(sonnenData['Ubat'])+"}"
+                print(output_str)
             mqtt_json = "{\"ts\":\"" + sonnenData['Timestamp'] + "\"," + \
                             "\"cons\":" + str(sonnenData['Consumption_W']) + "," + \
                             "\"gridFIn\":" + str(sonnenData['GridFeedIn_W']) + "," + \
@@ -131,44 +169,44 @@ def job(args):
                             "\"usoc\":" + str(sonnenData['USOC']) + "}"
         except KeyError as err:
             print("KeyError occurred: %s" % err)
-        else:
-            if args.verbose:
-                print(output_str)
 
-    try:
-        myrow = (
-            sonnenData['Consumption_W'],
-            sonnenData['GridFeedIn_W'],
-            sonnenData['Pac_total_W'],
-            sonnenData['Production_W'],
-            sonnenData['RSOC'],
-            sonnenData['USOC'],
-            sonnenData['Uac'],
-            sonnenData['Ubat'],
-            sonnenData['Timestamp'],
-        )
-    except KeyError:
-        print("some keys are missing, rollingback")
-        #conn.rollback()
+    if sonnenData['Consumption_W'] > 0:
+        diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
+                sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
+        if diff > 20:
+            print("error in read out, diff greater than 20. Diff was: " + str(diff))
+        else:
+            mqttClient.publish("sensor/pv/1", mqtt_json)  # publish
     else:
-        if sonnenData['Consumption_W'] > 0:
-            diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
-                    sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
-            if diff > 20:
-                print("error in read out, diff greater than 20. Diff was: " + str(diff))
-            else:
-                try:
-                    c.execute(SQL_INSERT, myrow)
-                except mysql.connector.errors.DatabaseError:
-                    print("connection to DB did not work")
-                else:
-                    conn.commit()
-
-                mqttClient.publish("sensor/pv/1", mqtt_json)  # publish
-        else:
-            print("got a 0 consumption, ignore this data set")
-    conn.close()
+        print("got a 0 consumption, ignore this data set")
+    
     mqttClient.disconnect()
+    write2InfluxDB(sonnenData, args.f)
+
+
+def write2InfluxDB(data, configfile):
+
+    config = configparser.ConfigParser()
+    config.read(configfile)
+
+    bucket = configSectionMap(config, "InfluxDB")['bucket']
+
+    with InfluxDBClient(url=configSectionMap(config, "InfluxDB")['url'], token=configSectionMap(config, "InfluxDB")['token'],
+            org=configSectionMap(config, "InfluxDB")['org']) as client:
+        write_api = client.write_api(write_options=SYNCHRONOUS)
+
+        ts = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+        p = Point("sonnenbattery")\
+            .tag("location", "Marly")\
+            .time(ts)\
+            .field("consumption", data['Consumption_W'])\
+            .field("gridfeedin", data['GridFeedIn_W'])\
+            .field("pactotal", data['Pac_total_W'])\
+            .field("production", data['Production_W'])\
+            .field("rsoc", data['RSOC'])\
+            .field("usoc", data['USOC'])\
+            .field("ubat", data['Ubat'])
+        write_api.write(bucket=configSectionMap(config, "InfluxDB")['bucket'], org=configSectionMap(config, "InfluxDB")['org'], record=p)
 
 
 
@@ -187,9 +225,11 @@ def main():
         schedule.run_pending()
         time.sleep(1)
 
+
 def on_disconnect(client, userdata, rc):
 #    print("disconnecting reason  " + str(rc))
     pass
+
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
