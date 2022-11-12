@@ -113,7 +113,9 @@ def getSonnenData(config_file):
     except KeyError:
         print('You must provide the URL of your sonnen battery in the config file')
         return None
-
+    except requests.exceptions.RequestsJSONDecodeError:
+        print("Returned value can't be interpreted as json")
+        return None
 
 def str2Epoch(strDate):
     pattern = '%Y-%m-%d %H:%M:%S'
@@ -173,8 +175,8 @@ def job(args):
     if sonnenData['Consumption_W'] > 0:
         diff = abs(sonnenData['Production_W']+sonnenData['Pac_total_W']-
                 sonnenData['Consumption_W']-sonnenData['GridFeedIn_W'])
-        if diff > 20:
-            print("error in read out, diff greater than 20. Diff was: " + str(diff))
+        if diff > 40:
+            print("error in read out, diff greater than 40. Diff was: " + str(diff))
         else:
             mqttClient.publish("sensor/pv/1", mqtt_json)  # publish
     else:
@@ -196,7 +198,7 @@ def write2InfluxDB(data, configfile):
         write_api = client.write_api(write_options=SYNCHRONOUS)
 
         ts = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        p = Point("sonnenbattery")\
+        p = Point(configSectionMap(config, "InfluxDB")['measurement'])\
             .tag("location", "Marly")\
             .time(ts)\
             .field("consumption", data['Consumption_W'])\

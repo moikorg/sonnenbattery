@@ -1,9 +1,13 @@
 version: "2"
 
 services:
-  sonnen_api:
+  sensor_sonnenbattery:
     build: .
-    # with the following line, an alternativ python app could be started
-    # command: python3 sonosServer.py 
     volumes:
       - ./code:/code
+    tty: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
