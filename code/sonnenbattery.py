@@ -130,8 +130,11 @@ def on_connect(client, userdata, flags, rc):
 
 def job(args):
 
-    mqttClient = connectMQTT(args)
-
+    try:
+        mqttClient = connectMQTT(args)
+    except IOError:
+        print("Problem with the MQTT connection, trying in the next iteration")
+        return
     if args.mock:
         sonnenData={}
         sonnenData['Consumption_W'] = 6182
@@ -262,7 +265,7 @@ def connectMQTT(args):
         client.connect(broker, 1883, 60)
     except:
         print("ERROR: Can not connect to MQTT broker")
-        return 1
+        raise IOError
 
     #print("ready for publishing")
     return client
