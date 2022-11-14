@@ -113,7 +113,7 @@ def getSonnenData(config_file):
     except KeyError:
         print('You must provide the URL of your sonnen battery in the config file')
         return None
-    except requests.exceptions.RequestsJSONDecodeError:
+    except requests.exceptions.JSONDecodeError:
         print("Returned value can't be interpreted as json")
         return None
 
