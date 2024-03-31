@@ -101,7 +101,13 @@ def getSonnenData(config_file):
     config.read(config_file)
 
     try:
-        r = requests.get(configSectionMap(config, "Sonnen")['url'], timeout=1.0)
+        headers = {
+            'Auth-Token': configSectionMap(config, "Sonnen")['token'] 
+        }
+        payload = {}
+        url = configSectionMap(config, "Sonnen")['url']
+        r = requests.request("GET", url, headers=headers, data=payload)
+        #r = requests.get(configSectionMap(config, "Sonnen")['url'], timeout=1.0)
         return r.json()
     except requests.exceptions.ConnectionError as err:
         print("Error, connection to sonnen battery could be established")
