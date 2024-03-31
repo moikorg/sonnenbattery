@@ -211,8 +211,10 @@ def write2InfluxDB(data, configfile):
             .field("rsoc", data['RSOC'])\
             .field("usoc", data['USOC'])\
             .field("ubat", data['Ubat'])
-        write_api.write(bucket=configSectionMap(config, "InfluxDB")['bucket'], org=configSectionMap(config, "InfluxDB")['org'], record=p)
-
+        try:
+            write_api.write(bucket=configSectionMap(config, "InfluxDB")['bucket'], org=configSectionMap(config, "InfluxDB")['org'], record=p)
+        except:
+            print("Could not write to InfluxDB")
 
 
 def main():
